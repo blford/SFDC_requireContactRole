@@ -1,4 +1,4 @@
-SFDC_requireContactRole
+Salesforce - Require Contact Roles
 =======================
 
 Apex trigger and test class that checks for number of contact roles and a primary contact role on the opportunity object
