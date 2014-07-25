@@ -1,0 +1,65 @@
+@isTest
+public class requireContactRoleTEST {
+    
+    static testMethod void testContactRole() {
+
+        //create an account
+        Account acc = new Account();
+        acc.Name = 'Acc-ContactRoles';
+        acc.BillingCountry = 'United States';
+
+        //create 2 contacts
+        Contact con1 = new Contact();
+        con1.FirstName = 'ContactRoles1';
+        con1.LastName = 'Surname1';
+        con1.AccountId = acc.Id;
+        
+        Contact con2 = new Contact();
+        con2.FirstName = 'ContactRoles2';
+        con2.LastName = 'Surname2';
+        con2.AccountId = acc.Id;
+
+        //create campaign for required opp field
+        Campaign cam = new Campaign();
+        cam.Name = 'cam - contact role test';
+
+        //create an opportunity
+        Opportunity opp = new Opportunity();
+        opp.Name = 'Opp-ContactRoles';
+        opp.AccountId = acc.Id;
+        opp.StageName = '3- Tech Win';
+        opp.Amount = 10000;
+        opp.New_Renew__c = 'New';
+        opp.Campaign_Source__c = cam.Id;
+        opp.CloseDate = System.Today();
+
+        //add 2 contact roles and make 1 the primary
+        OpportunityContactRole ocr1 = new OpportunityContactRole();
+        ocr1.OpportunityId = opp.Id;
+        ocr1.ContactId = con1.Id;
+        ocr1.IsPrimary = TRUE;
+
+        OpportunityContactRole ocr2 = new OpportunityContactRole();
+        ocr2.OpportunityId = opp.Id;
+        ocr2.ContactId = con2.Id;
+        ocr2.IsPrimary = FALSE;
+        
+        insert acc;
+        insert con1;
+        insert con2;
+        insert cam;
+        insert opp;
+        insert ocr1;
+        insert ocr2;
+        
+        Integer oppAmount = 0;
+        Integer firstTest = 1;
+        for (Opportunity o:[SELECT Id FROM Opportunity 
+                            WHERE Name = 'Opp-ContactRoles']) {
+                                oppAmount++;
+                            }
+        
+        System.assertEquals(firstTest, oppAmount);
+        
+    }
+}
