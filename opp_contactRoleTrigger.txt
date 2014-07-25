@@ -1,0 +1,43 @@
+trigger requireContactRole on Opportunity (before insert, before update) {
+
+    Boolean isPrimary = FALSE;
+    Integer roleCounter = 0;
+
+    //check if the contact role is needed and add it to the oppContactRole map
+    Map<String, Opportunity> oppContactRole = new Map<String, Opportunity>();
+    
+        for (Integer i = 0; i < Trigger.new.size(); i++) {
+                oppContactRole.put(Trigger.new[i].id, Trigger.new[i]);      
+        }
+    
+    //Query for primary contact
+    List<OpportunityContactRole> primaryContact = new List<OpportunityContactRole>();
+    primaryContact = [SELECT OpportunityId 
+                        FROM OpportunityContactRole 
+                        WHERE (OpportunityContactRole.IsPrimary = True AND 
+                                OpportunityContactRole.OpportunityId in :oppContactRole.keySet())];
+
+        for (OpportunityContactRole o : primaryContact) {
+             if (primaryContact.Size() > 0) {
+                isPrimary = True;
+             }
+        }
+
+    //Query for Contact Roles
+    List<OpportunityContactRole> numContactRoles = new List<OpportunityContactRole>();
+    numContactRoles = [SELECT OpportunityId
+                        FROM OpportunityContactRole
+                        WHERE (OpportunityContactRole.OpportunityId in :oppContactRole.keySet())];
+
+        for (OpportunityContactRole ocr : numContactRoles) {
+            if (numContactRoles.Size() > 0) {
+                roleCounter = numContactRoles.Size();
+            }
+        }
+    
+    //Check if roles exists in the map or contact role isn't required 
+    for (Opportunity Oppty : system.trigger.new) {
+        Oppty.Number_of_Contact_Roles__c = roleCounter;
+        Oppty.Primary_Contact_Assigned__c = isPrimary; 
+    }
+}
